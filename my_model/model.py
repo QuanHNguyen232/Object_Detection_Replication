@@ -37,4 +37,4 @@ imgs = filter_img.get_images(PATH + 'human-images-pos/')
 print(imgs[3].shape)
 
 if __name__ == '__main__':
-    pass
+    print('done model.py')
