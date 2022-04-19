@@ -10,7 +10,7 @@ import numpy as np
 import json
 import cv2
 import os
-import filter_img
+import dataset
 
 # CONFIG
 H, W = 500, 500
@@ -21,8 +21,8 @@ output_shape = [5 + nclasses]
 
 # DATA PREPARE
 PATH = '../../PASCAL_VOC/'
-labels_neg = filter_img.read_label(PATH + 'human-label-neg/')
-labels_pos = filter_img.read_label(PATH + 'human-label-pos/')
+labels_neg = dataset.read_label(PATH + 'human-label-neg/')
+labels_pos = dataset.read_label(PATH + 'human-label-pos/')
 labels = labels_neg + labels_pos
 np.random.shuffle(labels)
 
@@ -33,7 +33,7 @@ batch_size = 128
 train_steps = len(train_label) // batch_size
 val_steps = len(val_label) // batch_size
 
-imgs = filter_img.get_images(PATH + 'human-images-pos/')
+imgs = dataset.get_images(PATH + 'human-images-pos/')
 print(imgs[3].shape)
 
 if __name__ == '__main__':

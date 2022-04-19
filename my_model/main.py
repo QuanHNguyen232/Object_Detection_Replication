@@ -1,6 +1,6 @@
 import cv2
 import time
-from filter_img import read_data_label
+from dataset import read_data_label
 
 def open_img(file_path=None, x=0, y=0, w=10, h=10):
     img = cv2.imread(file_path, cv2.IMREAD_COLOR)
