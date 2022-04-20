@@ -80,8 +80,8 @@ class Yolov1(tf.keras.Model):   # Model based on YOLOv1 paper: https://arxiv.org
     out = self.model(x)
     out_classes = tf.nn.sigmoid(out[..., :self.n_class])
     out_coords = out[..., self.n_class: self.n_class+4] # Need to check +4
-    out_probs = tf.nn.sigmoid(out[..., self.n_class+4:])    # Need to check +4
-    ret_val = tf.concat([out_classes, out_coords, out_probs], axis=-1)
+    out_confi = tf.nn.sigmoid(out[..., self.n_class+4:])    # Need to check +4
+    ret_val = tf.concat([out_classes, out_coords, out_confi], axis=-1)
     return ret_val
     # return out
 

@@ -165,7 +165,7 @@ def testShowImage(isWebCam=False, file_path=None, x=0, y=0, w=0, h=0):
 
 if __name__ == '__main__':
     
-    
+    testIOU()
     
 
     print('done utils.py')

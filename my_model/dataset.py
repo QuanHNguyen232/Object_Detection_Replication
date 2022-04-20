@@ -10,8 +10,9 @@ import const
 from utils import preprocessImage
 from sklearn.model_selection import train_test_split
 
-# DATA FILTERS
-
+#================================================#
+#                DATA FILTERS                    #
+#================================================#
 def read_file(orig_path, filename):
     line_toadd = []
     with open(orig_path + filename, 'r') as f:
@@ -92,7 +93,10 @@ def copy_file(file_path, orig_path, target_path):
     print('Done copy_file')
 
 
-# GET DATA FUNCs
+#================================================#
+#            GET DATA FUNCTIONS                  #
+#================================================#
+
 def get_label(path, amount=1000000):
     i=0
     ids = []
@@ -148,6 +152,11 @@ def get_data(amount=100):
     img_set = [preprocessImage(img) for img in img_set]
 
     X_train, X_test, y_train, y_test = train_test_split(img_set, dataset, test_size=0.3, random_state=0)
+
+    X_train = tf.convert_to_tensor(X_train, dtype=tf.float32)
+    X_test = tf.convert_to_tensor(X_test, dtype=tf.float32)
+    y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
+    y_test = tf.convert_to_tensor(y_test, dtype=tf.float32)
 
     return img_set, dataset, X_train, X_test, y_train, y_test
 
