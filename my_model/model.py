@@ -71,7 +71,7 @@ class Yolov1(tf.keras.Model):   # Model based on YOLOv1 paper: https://arxiv.org
       # tf.keras.layers.Dense(1 * 1 * n_out),
       # tf.keras.layers.Reshape((1, 1, n_out))
 
-      tf.keras.layers.Dense(1)
+      tf.keras.layers.Dense(5)
     ])
     self.model.summary()
     

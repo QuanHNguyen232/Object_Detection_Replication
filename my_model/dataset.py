@@ -8,6 +8,7 @@ import numpy as np
 from IPython.display import display
 import const
 from utils import preprocessImage
+from sklearn.model_selection import train_test_split
 
 # DATA FILTERS
 
@@ -121,13 +122,12 @@ def get_images(path, ids):
     images = []
     for id in ids:
         img = cv2.imread(path + id + ".jpg", cv2.IMREAD_COLOR)
-        img = preprocessImage(img=img)
         images.append(img)
     
     images = np.asarray(images, dtype='object')
     return images
 
-def get_data(amount=20):
+def get_data(amount=100):
     pos_label = "../../PASCAL_VOC/1-human-label-pos/"
     neg_label = "../../PASCAL_VOC/1-human-label-neg/"
     pos_img = "../../PASCAL_VOC/1-human-images-pos/"
@@ -145,8 +145,11 @@ def get_data(amount=20):
     img_pos = get_images(pos_img, ids_pos)
     img_neg = get_images(neg_img, ids_neg)
     img_set = np.concatenate((img_pos, img_neg), axis=0)
+    img_set = [preprocessImage(img) for img in img_set]
 
-    return img_set, dataset
+    X_train, X_test, y_train, y_test = train_test_split(img_set, dataset, test_size=0.3, random_state=0)
+
+    return img_set, dataset, X_train, X_test, y_train, y_test
 
 if __name__ == '__main__':
     PATH = '../../PASCAL_VOC/'

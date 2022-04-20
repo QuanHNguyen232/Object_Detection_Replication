@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import const
+from utils import basicIOU
 
 def yolo_loss(y_pred=None, y_true=None):
     pred_obj_conf = y_pred[:, 0:1]
@@ -11,6 +12,17 @@ def yolo_loss(y_pred=None, y_true=None):
 
     noobj_mask = tf.ones_like(target_obj_conf) - target_obj_conf
 
+    pred_x = pred_box_coord[:, 0:1]
+    pred_y = pred_box_coord[:, 1:2]
+    pred_w = tf.sqrt(pred_box_coord[:, 2:3])
+    pred_h = tf.sqrt(pred_box_coord[:, 3:4])
+
+    true_x = true_box_coord[:, 0:1]
+    true_y = true_box_coord[:, 1:2]
+    true_w = tf.sqrt(true_box_coord[:, 2:3])
+    true_h = tf.sqrt(true_box_coord[:, 3:4])
+
+    pred_ious = basicIOU(true_box_coord, pred_box_coord)
     # pred_box_offset_coord = tf.stack([pred_box_coord[:,0:1],
     #                                     pred_box_coord[:,1:2],
     #                                     tf.sqrt(pred_box_coord[:,2:3]),

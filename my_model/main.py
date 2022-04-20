@@ -13,17 +13,14 @@ def runModel():
     
     m = Yolov1((320, 320, 3), 5)
     model = m.getModel()
-    model.compile(loss=yolo_loss,
-                  optimizer=tf.keras.optimizers.Adam(learning_rate=5e-4))
+    model.compile(loss="categorical_crossentropy",
+                  optimizer=tf.keras.optimizers.Adam(learning_rate=1e-8))
     return model
 
 if __name__ == '__main__':
-    with tf.device("/CPU:0"):
+    with tf.device("/GPU:0"):
 
-        X, y = get_data(100)
-        y = y[..., :1]
-
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+        X, y, X_train, X_test, y_train, y_test = get_data(200)
         
         X_train = tf.convert_to_tensor(X_train, dtype=tf.float32)
         X_test = tf.convert_to_tensor(X_test, dtype=tf.float32)
@@ -34,66 +31,64 @@ if __name__ == '__main__':
         # model = runModel()
         # model.fit(X_train, y_train, epochs=const.EPOCHS, batch_size=const.BATCH_SIZE, validation_split = 0.2)#, validation_steps=val_steps)
         
+        # val = [i+10 for i in range(2)]
+        # for x in val:
+        #     img = np.asarray(X_train[x])
+        #     loc = y_train[x]
+        #     print(loc.shape)
+        #     print(img.shape)
+        #     print(img)
+        #     x_, y_, w_, h_ = loc[1:]
+        #     x_, w_ = x_*img.shape[1], w_*img.shape[1]
+        #     y_, h_ = y_*img.shape[0], h_*img.shape[0]
+        #     x_1 = x_ - (w_/2.0)
+        #     y_1 = y_ - (h_/2.0)
+        #     x_2 = x_ + (w_/2.0)
+        #     y_2 = y_ + (h_/2.0)
+        #     # print(f'({x_1}, {y_1}) ({x_2}, {y_2})')
+        #     img = cv2.rectangle(img, (int(x_1), int(y_1)), (int(x_2), int(y_2)), (0, 0, 255), 2)
+        #     cv2.imshow('',img)
+        #     cv2.waitKey(0)
+        #     cv2.destroyAllWindows()
 
+        print(X_train.shape)
+        print(X_train[1].shape)
+        print(y_train.shape)
+        y_train = np.asarray(y_train)
+        y_test = np.asarray(y_test)
+        # my_model = tf.keras.models.Sequential([
+        #     tf.keras.layers.Conv2D(32, kernel_size=3, strides=1, activation='relu', input_shape=X_train[1].shape),
+        #     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, padding='same'),
 
-        drop_rate = 0.2
-        my_model = tf.keras.models.Sequential([
-            tf.keras.layers.Conv2D(64, kernel_size=3, strides=1, activation='relu', input_shape=X_train[1].shape),
-            tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, padding='same'),
+        #     tf.keras.layers.Conv2D(128, kernel_size=3, strides=1, activation='relu'),
+        #     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, padding='same'),
 
-            tf.keras.layers.Conv2D(128, kernel_size=3, strides=1, activation='relu'),
-            tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, padding='same'),
-
-            tf.keras.layers.Conv2D(512, kernel_size=3, strides=1, activation='relu'),
-            tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, padding='same'),
+        #     tf.keras.layers.Conv2D(512, kernel_size=3, strides=1, activation='relu'),
+        #     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, padding='same'),
             
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dropout(drop_rate),
-            tf.keras.layers.Dense(128, activation='relu'),
-            tf.keras.layers.Dense(64, activation='relu'),
-            tf.keras.layers.Dropout(drop_rate),
-            tf.keras.layers.Dense(1, activation='softmax') #Output layer
-            ])
-        opt = tf.keras.optimizers.Nadam(learning_rate=1e-4, beta_1=0.9, beta_2=0.09, epsilon=1e-8)
-        my_model.compile(loss="categorical_crossentropy", optimizer=opt)
-        history = my_model.fit(X_train, y_train, epochs=const.EPOCHS, batch_size=const.BATCH_SIZE, validation_split = 0.2)#, validation_steps=val_steps)
+        #     tf.keras.layers.Flatten(),
+        #     tf.keras.layers.Dropout(0.2),
+        #     tf.keras.layers.Dense(128, activation='relu'),
+        #     tf.keras.layers.Dense(64, activation='relu'),
+        #     tf.keras.layers.Dropout(0.2),
+        #     tf.keras.layers.Dense(5, activation='softmax') #Output layer
+        #     ])
+        # # opt = tf.keras.optimizers.Nadam(learning_rate=1e-4, beta_1=0.9, beta_2=0.09, epsilon=1e-8)
+        # opt = tf.keras.optimizers.Adam(learning_rate=1e-6)
+        # my_model.compile(loss="categorical_crossentropy", optimizer=opt)
+        # history = my_model.fit(X_train, y_train, epochs=5, batch_size=5, validation_split = 0.2)#, validation_steps=val_steps)
 
-        results_test = my_model.evaluate(X_test, y_test, batch_size=const.BATCH_SIZE,verbose=0)    
-        my_model(history, results_test)
-        plt.show()
+        model = runModel()
+        model.fit(X_train, y_train, epochs=10, batch_size=20, validation_split = 0.2)
 
-        img = cv2.imread('imgs/hiking.jpg', cv2.IMREAD_COLOR)
-        img = preprocessImage(img=img)
-        img = np.asarray(img, dtype=np.float32)
-        img = np.reshape(img, (1, img.shape[0], img.shape[1], img.shape[2]))
 
-        print(f'img.shape: {img.shape}')
-        y_pred = my_model.predict(img)
-        print(f'y_pred.shape: {y_pred.shape}')
-        print(f'y_pred: {y_pred}')
-        
-        
-        img = cv2.imread("../../PASCAL_VOC/1-human-images-neg/000013.jpg", cv2.IMREAD_COLOR)
-        img = preprocessImage(img=img)
-        img = np.asarray(img, dtype=np.float32)
-        img = np.reshape(img, (1, img.shape[0], img.shape[1], img.shape[2]))
 
-        print(f'img.shape: {img.shape}')
-        y_pred = my_model.predict(img)
-        print(f'y_pred.shape: {y_pred.shape}')
-        print(f'y_pred: {y_pred}')
+        # img = cv2.imread("../../PASCAL_VOC/1-human-images-neg/000013.jpg", cv2.IMREAD_COLOR)
+        # img = preprocessImage(img=img)
+        # img = np.asarray(img, dtype=np.float32)
+        # img = np.reshape(img, (1, img.shape[0], img.shape[1], img.shape[2]))
+        # print(f'img.shape: {img.shape}')
+        # y_pred = my_model.predict(img)
+        # print(f'y_pred.shape: {y_pred.shape}')
+        # print(f'y_pred: {y_pred}')
 
-def plot_result_4(history,results_test):
-    # Get training and validation histories
-    training_acc = history.history['accuracy']
-    val_acc      = history.history['val_accuracy']
-    # Create count of the number of epochs
-    epoch_count = range(1, len(training_acc) + 1)
-    # Visualize loss history
-    plt.plot(epoch_count, training_acc, 'b-o',label='Training')
-    plt.plot(epoch_count, val_acc, 'r--',label='Validation')
-    plt.plot(epoch_count, results_test[1]*np.ones(len(epoch_count)),'k--',label='Test')
-    plt.legend()
-    plt.title("Training and validation accuracy")
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
