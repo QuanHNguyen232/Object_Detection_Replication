@@ -90,6 +90,22 @@ class Yolov1(tf.keras.Model):   # Model based on YOLOv1 paper: https://arxiv.org
   def getSummary(self):
     return self.model.summary()
 
+def getCallbacks():
+  checkpoint_filepath = '/checkpoint/model.h5'
+  model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_filepath,
+                                                                save_weights_only=True,
+                                                                monitor='loss',
+                                                                mode='min',
+                                                                save_best_only=True)
+  # tf.keras.callbacks.ModelCheckpoint('model.h5',
+  #                                 monitor='val_loss',
+  #                                 verbose= 1,
+  #                                 save_best_only=True,
+  #                                 mode= 'min',
+  #                                 save_weights_only=True) 
+  callbacks = [model_checkpoint_callback]
+  return callbacks
+
 def test(input_shape=(320, 320, 3), n_anchor_boxes=9, n_out=5):
   m = Yolov1(input_shape, n_out, 7)
   model = m.getModel()

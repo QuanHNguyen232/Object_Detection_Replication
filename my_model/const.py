@@ -1,11 +1,10 @@
 import numpy as np
 
 
-
-
 IMAGE_SIZE = (320, 320)
-EPSILON = 1e-10
+EPSILON = 1e-8
 
+LAMBDA_COORD = 2
 LAMBDA_CONFI = 4
 LAMBDA_LOC = 1
 

@@ -14,12 +14,12 @@ def basicIOU(bboxes1, bboxes2):
     # Get center x, y, get w, h of bbox
     box1_x = bboxes1[..., 0:1]
     box1_y = bboxes1[..., 1:2]
-    box1_w = bboxes1[..., 1:3]
+    box1_w = bboxes1[..., 2:3]
     box1_h = bboxes1[..., 3:4]
-    
+
     box2_x = bboxes2[..., 0:1]
     box2_y = bboxes2[..., 1:2]
-    box2_w = bboxes2[..., 1:3]
+    box2_w = bboxes2[..., 2:3]
     box2_h = bboxes2[..., 3:4]
 
     # get corner x, y of bbox
@@ -27,74 +27,50 @@ def basicIOU(bboxes1, bboxes2):
     box1_y1 = box1_y - (box1_h / 2.0)
     box1_x2 = box1_x + (box1_w / 2.0)
     box1_y2 = box1_y + (box1_h / 2.0)
-    print(f'box_1: ({box1_x1}:{box1_y1}) ({box1_x2}:{box1_y2})')
 
     box2_x1 = box2_x - (box2_w / 2.0)
     box2_y1 = box2_y - (box2_h / 2.0)
     box2_x2 = box2_x + (box2_w / 2.0)
     box2_y2 = box2_y + (box2_h / 2.0)
-    print(f'box_2: ({box2_x1}:{box2_y1}) ({box2_x2}:{box2_y2})')
 
     # get corner of union box
     union_x1 = tf.maximum(box1_x1, box2_x1)
     union_y1 = tf.maximum(box1_y1, box2_y1)
     union_x2 = tf.minimum(box1_x2, box2_x2)
     union_y2 = tf.minimum(box1_y2, box2_y2)
-    print(f'union_box: ({union_x1}:{union_y1}) ({union_x2}:{union_y2})')
 
     # get union box area
     union_w = tf.maximum(0.0, union_x2 - union_x1)
     union_h = tf.maximum(0.0, union_y2 - union_y1)
-    union_area = union_w * union_h
-    print(f'union_area: {union_area}')
+    union_area = union_w[..., 0] * union_h[..., 0]  # convert to 1D
 
     # get intersect area
     box1_area = (box1_x2 - box1_x1) * (box1_y2 - box1_y1)
     box1_area = (box2_x2 - box2_x1) * (box2_y2 - box2_y1)
     intersect_area = (box1_area + box1_area) - union_area
-    print(f'intersect_area: {intersect_area}')
+    intersect_area = intersect_area[..., 0] # convert to 1D
 
     # get iou, add EPSILON to prevent num/0
     iou = union_area / (intersect_area + const.EPSILON)
 
     return iou
 
-def multiBoxIOU(boxes1, boxes2):
-    boxes1_t = tf.stack([boxes1[..., 0] - boxes1[..., 2] / 2.0,
-                         boxes1[..., 1] - boxes1[..., 3] / 2.0,
-                         boxes1[..., 0] + boxes1[..., 2] / 2.0,
-                         boxes1[..., 1] + boxes1[..., 3] / 2.0],
-                        axis=-1)
 
-    boxes2_t = tf.stack([boxes2[..., 0] - boxes2[..., 2] / 2.0,
-                         boxes2[..., 1] - boxes2[..., 3] / 2.0,
-                         boxes2[..., 0] + boxes2[..., 2] / 2.0,
-            1ate the left up point & right down point
-    lu = tf.maximum(boxes1_t[..., :2], boxes2_t[..., :2])
-    rd = tf.minimum(boxes1_t[..., 2:], boxes2_t[..., 2:])
-
-    # intersection
-    intersection = tf.maximum(0.0, rd - lu)
-    inter_square = intersection[..., 0] * intersection[..., 1]
-
-    # calculate the boxs1 square and boxs2 square
-    square1 = boxes1[..., 2] * boxes1[..., 3]
-    square2 = boxes2[..., 2] * boxes2[..., 3]
-
-    union_square = tf.maximum(square1 + square2 - inter_square, const.EPSILON)
-
-    return tf.clip_by_value(inter_square / union_square, 0.0, 1.0)
 
 def testIOU():
     box1 = tf.convert_to_tensor([[2, 3, 2, 4], [3, 8.5, 2, 3], [2, 3, 2, 4]], dtype=tf.float32)
-    box2 = tf.convert_to_tensor([[4, 5, 4, 2], [2, 3, 2, 4]], [6.5, 3.5, 3, 3],dtype=tf.float32)
+    box2 = tf.convert_to_tensor([[4, 5, 4, 2], [2, 3, 2, 4], [6.5, 3.5, 3, 3]], dtype=tf.float32)
 
     print(f'box1_shape: {box1.shape}')
     print(f'box2_shape: {box2.shape}')
 
     result = basicIOU(box1, box2)
+    retult_2 = compute_iou(box1, box2)
+
     print(f'result_shape: {result.shape}')
+    print(f'result_2_shape: {retult_2.shape}')
     print(f'result: {result}')
+    print(f'result_2: {retult_2}')
     '''
     expect:
         union area: [1, 0, 0]

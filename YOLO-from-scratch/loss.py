@@ -66,6 +66,7 @@ class YoloLoss(nn.Module):
         #print(self.lambda_class * class_loss)
         #print("\n")
 
+
         return (
             self.lambda_box * box_loss
             + self.lambda_obj * object_loss

@@ -1,36 +1,52 @@
 import const
-from sklearn.model_selection import train_test_split
 import cv2
 import tensorflow as tf
 import numpy as np
 import matplotlib as plt
-from model import Yolov1
-from loss import yolo_loss
+from model import Yolov1, getCheckpoint
+# from loss import yolo_loss
 import utils
 from dataset import get_data, preprocessImage
 
-def runModel():
-    
-    m = Yolov1((320, 320, 3), 5)
-    model = m.getModel()
-    model.compile(loss="categorical_crossentropy",
-                  optimizer=tf.keras.optimizers.Adam(learning_rate=1e-8))
-    return model
+
 
 if __name__ == '__main__':
     with tf.device("/GPU:0"):
 
-        X, y, X_train, X_test, y_train, y_test = get_data(200)
+        X, y, X_train, X_test, y_train, y_test = get_data(50)
         
-        X_train = tf.convert_to_tensor(X_train, dtype=tf.float32)
-        X_test = tf.convert_to_tensor(X_test, dtype=tf.float32)
-        y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
-        y_test = tf.convert_to_tensor(y_test, dtype=tf.float32)
 
-        # val_steps =  len(X_train)// const.BATCH_SIZE
-        # model = runModel()
-        # model.fit(X_train, y_train, epochs=const.EPOCHS, batch_size=const.BATCH_SIZE, validation_split = 0.2)#, validation_steps=val_steps)
         
+        print(X_train.shape)
+        print(y_train.shape)
+        print(X_train.shape[0])
+        print(X_train.shape[0] // const.BATCH_SIZE)
+
+        
+        def runModel():
+            
+            m = Yolov1((320, 320, 3), 5)
+            model = m.getModel()
+            model.compile(loss='mse',
+                        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4))
+            return model
+
+        val_steps =  X_train.shape[0] // const.BATCH_SIZE
+        yolo_model = runModel()
+        yolo_model.fit(X_train, y_train, 
+                        epochs=1, batch_size=20,
+                        validation_split = 0.2,
+                        validation_steps=val_steps)
+        # yolo_model.save('whole-model.h5')
+        # %%
+        loaded_model = tf.keras.models.load_model('whole-model.h5')
+        loaded_model.summary()
+
+
+
+
+
+        # %%
         # val = [i+10 for i in range(2)]
         # for x in val:
         #     img = np.asarray(X_train[x])
@@ -45,17 +61,17 @@ if __name__ == '__main__':
         #     y_1 = y_ - (h_/2.0)
         #     x_2 = x_ + (w_/2.0)
         #     y_2 = y_ + (h_/2.0)
-        #     # print(f'({x_1}, {y_1}) ({x_2}, {y_2})')
         #     img = cv2.rectangle(img, (int(x_1), int(y_1)), (int(x_2), int(y_2)), (0, 0, 255), 2)
         #     cv2.imshow('',img)
         #     cv2.waitKey(0)
         #     cv2.destroyAllWindows()
 
-        print(X_train.shape)
-        print(X_train[1].shape)
-        print(y_train.shape)
-        y_train = np.asarray(y_train)
-        y_test = np.asarray(y_test)
+        # print(X_train.shape)
+        # print(X_train[1].shape)
+        # print(y_train.shape)
+        # y_train = np.asarray(y_train)
+        # y_test = np.asarray(y_test)
+
         # my_model = tf.keras.models.Sequential([
         #     tf.keras.layers.Conv2D(32, kernel_size=3, strides=1, activation='relu', input_shape=X_train[1].shape),
         #     tf.keras.layers.MaxPooling2D(pool_size=(2, 2), strides=2, padding='same'),
@@ -78,8 +94,6 @@ if __name__ == '__main__':
         # my_model.compile(loss="categorical_crossentropy", optimizer=opt)
         # history = my_model.fit(X_train, y_train, epochs=5, batch_size=5, validation_split = 0.2)#, validation_steps=val_steps)
 
-        model = runModel()
-        model.fit(X_train, y_train, epochs=10, batch_size=20, validation_split = 0.2)
 
 
 
