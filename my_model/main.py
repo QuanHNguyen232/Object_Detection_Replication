@@ -1,29 +1,15 @@
-import const
+from tabnanny import verbose
+from const import EPOCHS, BATCH_SIZE
 import cv2
 import tensorflow as tf
 import numpy as np
 import matplotlib as plt
-from model import Yolov1, getCheckpoint
+from model import Yolov1
 # from loss import yolo_loss
 import utils
-from dataset import get_data, preprocessImage
+from dataset import get_data, get_1_img
 
-
-
-if __name__ == '__main__':
-    with tf.device("/GPU:0"):
-
-        X, y, X_train, X_test, y_train, y_test = get_data(50)
-        
-
-        
-        print(X_train.shape)
-        print(y_train.shape)
-        print(X_train.shape[0])
-        print(X_train.shape[0] // const.BATCH_SIZE)
-
-        
-        def runModel():
+def runModel():
             
             m = Yolov1((320, 320, 3), 5)
             model = m.getModel()
@@ -31,20 +17,51 @@ if __name__ == '__main__':
                         optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4))
             return model
 
-        val_steps =  X_train.shape[0] // const.BATCH_SIZE
-        yolo_model = runModel()
-        yolo_model.fit(X_train, y_train, 
-                        epochs=1, batch_size=20,
-                        validation_split = 0.2,
-                        validation_steps=val_steps)
+if __name__ == '__main__':
+
+    with tf.device("/GPU:0"):
+
+        #======================#
+        #       LOAD DATA      #
+        #======================#
+        # X, y, X_train, X_test, y_train, y_test = get_data(100)
+                
+        # val_steps =  X_train.shape[0] // BATCH_SIZE
+        # print(f'val_steps: {val_steps}')
+        
+        #======================#
+        #       RUN MODEL      #
+        #======================#
+        # yolo_model = runModel()
+        # yolo_model.fit(X_train, y_train, 
+        #                 epochs=EPOCHS,
+        #                 batch_size=BATCH_SIZE,
+        #                 validation_split = 0.2,
+        #                 validation_steps=val_steps)
+        
         # yolo_model.save('whole-model.h5')
-        # %%
+        
+
+        #======================#
+        #   LOAD SAVED MODEL   #
+        #======================#
+
         loaded_model = tf.keras.models.load_model('whole-model.h5')
-        loaded_model.summary()
+        
+        
 
 
+        for i in range(20):
+            i += 10
+            path = "../../PASCAL_VOC/images/0000" + str(i) + ".jpg"
+            img = cv2.imread(path, cv2.IMREAD_COLOR)
+            img = utils.preprocessImage(img=img)
+            img = np.reshape(img, (1, img.shape[0], img.shape[1], img.shape[2]))
+            print(img.shape)
+            y_pred = loaded_model.predict(img)
+            print(y_pred)
 
-
+            utils.open_img(file_path=path, x=int(320*y_pred[0][1]), y=int(y_pred[0][2]*320), w=int(y_pred[0][3]*320), h=int(y_pred[0][4]*320))
 
         # %%
         # val = [i+10 for i in range(2)]

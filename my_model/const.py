@@ -16,7 +16,7 @@ output_shape = [5]  # confi, x, y, w, h
 
 
 EPOCHS = 10
-BATCH_SIZE = 10
+BATCH_SIZE = 32
 
 # train_steps = len(train_label) // batch_size
 # val_steps = len(val_label) // batch_size

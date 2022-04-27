@@ -122,6 +122,12 @@ def get_label(path, amount=1000000):
     print('Done read_data_label')
     return np.asarray(ids), np.asarray(datas).astype(np.float64)
 
+def get_1_img(path):
+    img = cv2.imread(path, cv2.IMREAD_COLOR)
+    img = preprocessImage(img=img)
+    img = tf.convert_to_tensor(img,dtype=tf.float32)
+    return img
+
 def get_images(path, ids):
     images = []
     for id in ids:
@@ -140,23 +146,27 @@ def get_data(amount=100):
     # GET LABEL
     ids_pos, data_pos = get_label(pos_label, amount=amount)
     ids_neg, data_neg = get_label(neg_label, amount=amount)
-    
+
     data_pos = [data[0] for data in data_pos]
     data_neg = [data[0] for data in data_neg]
     dataset = np.concatenate((data_pos, data_neg), axis=0)
+    print('done concat data')
 
     # GET IMAGES
     img_pos = get_images(pos_img, ids_pos)
     img_neg = get_images(neg_img, ids_neg)
     img_set = np.concatenate((img_pos, img_neg), axis=0)
     img_set = [preprocessImage(img) for img in img_set]
+    print('done concat img')
 
-    X_train, X_test, y_train, y_test = train_test_split(img_set, dataset, test_size=0.3, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(img_set, dataset, test_size=0.2, random_state=0)
+    print('done train test split')
 
     X_train = tf.convert_to_tensor(X_train, dtype=tf.float32)
     X_test = tf.convert_to_tensor(X_test, dtype=tf.float32)
     y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
     y_test = tf.convert_to_tensor(y_test, dtype=tf.float32)
+    print('done convert to tensor')
 
     return img_set, dataset, X_train, X_test, y_train, y_test
 
