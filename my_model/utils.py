@@ -65,12 +65,12 @@ def testIOU():
     print(f'box2_shape: {box2.shape}')
 
     result = basicIOU(box1, box2)
-    retult_2 = compute_iou(box1, box2)
+    # retult_2 = compute_iou(box1, box2)
 
     print(f'result_shape: {result.shape}')
-    print(f'result_2_shape: {retult_2.shape}')
+    # print(f'result_2_shape: {retult_2.shape}')
     print(f'result: {result}')
-    print(f'result_2: {retult_2}')
+    # print(f'result_2: {retult_2}')
     '''
     expect:
         union area: [1, 0, 0]
@@ -105,9 +105,21 @@ def open_img(file_path=None, x=0, y=0, w=10, h=10, label='image'):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def open_img_2(file_path=None, boxes=None, label='image'):
+    img = cv2.imread(file_path, cv2.IMREAD_COLOR)
+    for box in boxes:
+        x = int(box[0]*img.shape[1])
+        y = int(box[1]*img.shape[0])
+        w = int(box[2]*img.shape[1])
+        h = int(box[3]*img.shape[0])
+        add_bbox(img, start_X=x, start_Y=y, rec_w=w, rec_h=h, label=label)
+    cv2.imshow(file_path, img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 def show_webcam(file_path=None, isWebcam=False, mirror=False, label='webcam/mp4'):
     if (isWebcam):
-        cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        cam = cv2.VideoCapture(0)
     else:
         cam = cv2.VideoCapture(file_path)
 
@@ -123,12 +135,11 @@ def show_webcam(file_path=None, isWebcam=False, mirror=False, label='webcam/mp4'
     cv2.destroyAllWindows()
 
 
-    
-
 def add_bbox(img, start_X, start_Y, rec_w, rec_h, label=None):
     (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
     box_color = (0, 0, 255)
-
+    start_X = int(start_X - rec_w/2.0)
+    start_Y = int(start_Y - rec_h/2.0)
     # print text + background
     img = cv2.rectangle(img, (start_X, start_Y - 20), (start_X + text_w, start_Y), box_color, -1)
     img = cv2.putText(img, label, (start_X, start_Y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
@@ -148,12 +159,15 @@ if __name__ == '__main__':
     
     # testIOU()
     
-    file_path = "../../Yiruma-River-Flows-in-You.mp4"
 
-    # open_img('imgs\hiking.jpg', x=50, y=50, w=100, h=200)
-    # show_webcam(isWebcam=True, mirror=True)
-    # show_webcam(file_path=file_path, isWebcam=False)
+    # open_img('imgs\hiking.jpg', x=100, y=500, w=100, h=200)
+    show_webcam(isWebcam=True, mirror=True)
+    show_webcam(file_path="../../Yiruma-River-Flows-in-You.mp4", isWebcam=False)
 
+
+    # img_path = "../../PASCAL_VOC/1-human-images-pos/000001.jpg"
+    # y_loc = np.asarray([[11, 0.34135977337110485, 0.609, 0.4164305949008499, 0.262], [14, 0.5070821529745043, 0.508, 0.9745042492917847, 0.972]] ,dtype=np.float32)
+    # open_img_2(img_path, y_loc[..., 1:])
 
 
 

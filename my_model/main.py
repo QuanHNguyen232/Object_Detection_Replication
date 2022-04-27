@@ -50,8 +50,10 @@ if __name__ == '__main__':
         
         
 
-
-        for i in range(20):
+        #======================#
+        #    SHOW IMG W/ BOX   #
+        #======================#
+        for i in range(2):
             i += 10
             path = "../../PASCAL_VOC/images/0000" + str(i) + ".jpg"
             img = cv2.imread(path, cv2.IMREAD_COLOR)
