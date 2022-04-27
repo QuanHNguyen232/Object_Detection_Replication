@@ -105,8 +105,11 @@ def open_img(file_path=None, x=0, y=0, w=10, h=10, label='image'):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def show_webcam(file_path=0, mirror=False, label='webcam/mp4'):
-    cam = cv2.VideoCapture(file_path, cv2.CAP_DSHOW)
+def show_webcam(file_path=None, isWebcam=False, mirror=False, label='webcam/mp4'):
+    if (isWebcam):
+        cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    else:
+        cam = cv2.VideoCapture(file_path)
 
     while True:
         ret_val, img = cam.read()
@@ -115,10 +118,12 @@ def show_webcam(file_path=0, mirror=False, label='webcam/mp4'):
 
         add_bbox(img, 150, 150, 200, 100, label)
         cv2.imshow('from webcam/mp4', img)
-        # time.sleep(1)
         if cv2.waitKey(1) > -1: # press any key. Ascii table: 0 is smallest index
             break
     cv2.destroyAllWindows()
+
+
+    
 
 def add_bbox(img, start_X, start_Y, rec_w, rec_h, label=None):
     (text_w, text_h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
@@ -141,7 +146,17 @@ def testShowImage(isWebCam=False, file_path=None, x=0, y=0, w=0, h=0):
 
 if __name__ == '__main__':
     
-    testIOU()
+    # testIOU()
     
+    file_path = "../../Yiruma-River-Flows-in-You.mp4"
+
+    # open_img('imgs\hiking.jpg', x=50, y=50, w=100, h=200)
+    # show_webcam(isWebcam=True, mirror=True)
+    # show_webcam(file_path=file_path, isWebcam=False)
+
+
+
 
     print('done utils.py')
+
+
