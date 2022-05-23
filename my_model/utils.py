@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
     # open_img('imgs\hiking.jpg', x=100, y=500, w=100, h=200)
     show_webcam(isWebcam=True, mirror=True)
-    show_webcam(file_path="../../Yiruma-River-Flows-in-You.mp4", isWebcam=False)
+    # show_webcam(file_path="../../Yiruma-River-Flows-in-You.mp4", isWebcam=False)
 
 
     # img_path = "../../PASCAL_VOC/1-human-images-pos/000001.jpg"
